@@ -1,0 +1,54 @@
+=>	Array
+(
+    [0] => Array
+        (
+            [address] => Jufra District, Libya
+            [lat] => 26.240143228644378
+            [lng] => 18.51603031562497
+            [postID] => 2218
+            [postTitle] => Flatbed Driver &#8211; Watertown Local (Part Time)
+        )
+
+)
+
+	Occured in E:\laragon\www\britton-transport\wp-content\plugins\listify-multi-location-for-wp-job-manager\wp-job-manager-multi-location.php
+	on line 194
+	at 01-Aug-2021 | 07:35:49 AM 
+
+
+=>	Array
+(
+    [0] => Array
+        (
+            [address] => 19616, Saudi Arabia
+            [lat] => 24.270898638601306
+            [lng] => 46.5206043526367
+            [postID] => 2274
+            [postTitle] => Test Hiring
+        )
+
+    [1] => Array
+        (
+            [address] => Timokten, Algeria
+            [lat] => 27.51206707070783
+            [lng] => 1.1690418526367008
+            [postID] => 2274
+            [postTitle] => Test Hiring
+        )
+
+    [2] => Array
+        (
+            [address] => Unnamed Road, Baghdad, Iraq
+            [lat] => 33.214696919560915
+            [lng] => 44.3013660713867
+            [postID] => 2274
+            [postTitle] => Test Hiring
+        )
+
+)
+
+	Occured in E:\laragon\www\britton-transport\wp-content\plugins\listify-multi-location-for-wp-job-manager\wp-job-manager-multi-location.php
+	on line 194
+	at 01-Aug-2021 | 07:35:49 AM 
+
+

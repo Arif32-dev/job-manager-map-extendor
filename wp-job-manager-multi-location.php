@@ -60,15 +60,10 @@ class Keendevs_Multi_Location_WP_JOB_M {
     private function setup_actions() {
 
         /* Register Scripts */
-        add_action('wp_enqueue_scripts', array($this, 'register_scripts'), 99);
         add_action('admin_enqueue_scripts', array($this, 'register_scripts'), 99);
-        /* frontend job edit, submit page */
-        // add_action('submit_job_form_end', array($this, 'front_end_job_edit_submit'));
-        /* frontend preview listing */
-        // add_action('preview_job_form_end', array($this, 'preview_page_marker_listings'));
 
         /* load text domain */
-        // add_action('plugins_loaded', array($this, 'load_textdomain'));
+        add_action('plugins_loaded', array($this, 'load_textdomain'));
 
         /* Save Geo for New Post */
         add_action('job_manager_save_job_listing', array($this, 'save_post_location'), 31, 2);
@@ -80,15 +75,20 @@ class Keendevs_Multi_Location_WP_JOB_M {
         add_action('resume_manager_update_resume_data', array($this, 'save_post_location'), 25, 2);
         add_action('wpjm_events_update_event_data', array($this, 'save_post_location'), 26, 2);
 
-        // multi-location widgets
-        // add_action('widgets_init', array($this, 'widgets_init'), 20);
+        add_filter('job_manager_get_listings_result', [$this, 'injectAdditionalLocationData'], 10, 2);
 
-        // explore page facets locations ids
-        // add_filter('facetwp_filtered_post_ids', array($this, 'localize_explore_page_results_ids'), 10, 2);
     }
 
+    /**
+     * @return null
+     */
     public function localize_scripts_data() {
         // localize script data
+
+        if (get_post_type() != 'job_listing') {
+            return;
+        }
+
         global $post;
         $listing_id = $post->ID;
 
@@ -104,7 +104,7 @@ class Keendevs_Multi_Location_WP_JOB_M {
         }
         $this->local = array(
             'defaultLatLng'       => $defaultLatLng,
-            'additionallocations' => $extraMarkers
+            'additionallocations' => isset($extraMarkers) ? $extraMarkers : null
         );
     }
 
@@ -131,58 +131,16 @@ class Keendevs_Multi_Location_WP_JOB_M {
         return $location;
     }
 
-    /**
-     * @param  $post_ids
-     * @param  $class
-     * @return mixed
-     */
-    public function localize_explore_page_results_ids(
-        $post_ids,
-        $class
-    ) {
-        $per_page = get_option('job_manager_per_page');
-        $locations = array_slice($post_ids, 0, $per_page);
-        $extraMarkers = [];
-        foreach ($locations as $id) {
-            $latLng = get_post_meta($id, '_additionallocations', true);
-            if (is_array($latLng)) {
-                foreach ($latLng as $lt) {
-                    $extraMarkers[] = array(
-                        'id'       => $id,
-                        'location' => $lt
-                    );
-                }
-            }
-        }
-        // load script for explore page work
-        wp_enqueue_script('multi-location-explore', $this->plugin_url.'assets/js/multilocation-explore.js', array('jquery', 'listify', 'wp-util', 'listify-map'), $this->version, true);
-        wp_localize_script('multi-location-explore', 'expPgAddiLoc', $extraMarkers);
-        return $post_ids;
-    }
-
     public function register_scripts() {
         $this->localize_scripts_data();
         wp_enqueue_style('multi-location-css', $this->plugin_url.'assets/css/multilocation.css');
-        if (is_singular('job_listing')) {
-            wp_enqueue_script('single-listing', $this->plugin_url.'assets/js/single-listing.js', array('jquery', 'listify', 'wp-util', 'listify-map', 'mapify'), $this->version, true);
-            wp_localize_script('single-listing', 'mapSettings', array_merge($this->local['latLng'], $this->local['listMapData']));
-            wp_localize_script('single-listing', 'additionallocations', $this->local['additionallocations']);
-        }
+        // if (is_singular('job_listing')) {
+        // }
+
         if (is_admin() && (isset($_GET['post']) && 'job_listing' === get_post_type($_GET['post']))) {
             wp_enqueue_script('admin-script', $this->plugin_url.'assets/js/admin-script.js', array('jquery', 'mapify'), $this->version, true);
             wp_localize_script('admin-script', 'additionallocations', $this->local['additionallocations']);
         }
-    }
-
-    public function preview_page_marker_listings() {
-        wp_enqueue_script('preview-listing', $this->plugin_url.'assets/js/single-listing.js', array('jquery', 'listify', 'wp-util', 'listify-map', 'mapify'), $this->version, true);
-        wp_localize_script('preview-listing', 'mapSettings', array_merge($this->local['defaultLatLng'], $this->local['listMapData']));
-        wp_localize_script('preview-listing', 'additionallocations', $this->local['additionallocations']);
-    }
-
-    public function front_end_job_edit_submit() {
-        wp_enqueue_script('frontend-script', $this->plugin_url.'assets/js/frontend-script.js', array('jquery', 'mapify'), $this->version, true);
-        wp_localize_script('frontend-script', 'additionallocations', $this->local['additionallocations']);
     }
 
     /**
@@ -200,6 +158,40 @@ class Keendevs_Multi_Location_WP_JOB_M {
             $extraMarkers = array_filter($_POST['additionallocation'], array($this, 'secure_location_data'));
             update_post_meta($post_id, '_additionallocations', $extraMarkers);
         }
+    }
+
+    /**
+     * @param $result
+     * @param $post
+     */
+    public function injectAdditionalLocationData(
+        $result,
+        $post
+    ) {
+
+        $additionalLocations = [];
+
+        $posts = $post->posts;
+        if ($posts) {
+            foreach ($posts as $key => $singlePost) {
+                $locations = get_post_meta($singlePost->ID, '_additionallocations', true);
+                if ($locations) {
+
+                    foreach ($locations as $key => $value) {
+
+                        $locations[$key]['postID'] = $singlePost->ID;
+                        $locations[$key]['postTitle'] = esc_html(get_the_title($singlePost->ID));
+
+                    }
+
+                    array_push($additionalLocations, $locations);
+                }
+            }
+        }
+
+        $result['additionalLocations'] = $additionalLocations;
+
+        return $result;
     }
 
 }
