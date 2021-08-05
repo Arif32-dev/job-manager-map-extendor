@@ -61,6 +61,7 @@ class Keendevs_Multi_Location_WP_JOB_M {
 
         /* Register Scripts */
         add_action('admin_enqueue_scripts', array($this, 'register_scripts'), 99);
+        add_action('wp_enqueue_scripts', array($this, 'frontEndScripts'), 999);
 
         /* load text domain */
         add_action('plugins_loaded', array($this, 'load_textdomain'));
@@ -76,6 +77,8 @@ class Keendevs_Multi_Location_WP_JOB_M {
         add_action('wpjm_events_update_event_data', array($this, 'save_post_location'), 26, 2);
 
         add_filter('job_manager_get_listings_result', [$this, 'injectAdditionalLocationData'], 10, 2);
+
+        add_filter('the_content', [$this, 'integrateSingleListingMap']);
 
     }
 
@@ -133,13 +136,18 @@ class Keendevs_Multi_Location_WP_JOB_M {
 
     public function register_scripts() {
         $this->localize_scripts_data();
-        wp_enqueue_style('multi-location-css', $this->plugin_url.'assets/css/multilocation.css');
-        // if (is_singular('job_listing')) {
-        // }
 
+        wp_enqueue_style('multi-location-css', $this->plugin_url.'assets/css/multilocation.css');
         if (is_admin() && (isset($_GET['post']) && 'job_listing' === get_post_type($_GET['post']))) {
-            wp_enqueue_script('admin-script', $this->plugin_url.'assets/js/admin-script.js', array('jquery', 'mapify'), $this->version, true);
-            wp_localize_script('admin-script', 'additionallocations', $this->local['additionallocations']);
+        }
+        wp_enqueue_script('admin-script', $this->plugin_url.'assets/js/admin-script.js', array('jquery', 'mapify'), $this->version, true);
+        wp_localize_script('admin-script', 'additionallocations', $this->local['additionallocations']);
+    }
+
+    public function frontEndScripts() {
+
+        if (is_singular('job_listing')) {
+            wp_enqueue_script('single-listing', $this->plugin_url.'assets/js/single-listing.js', array('jquery', 'mapify'), $this->version, true);
         }
     }
 
@@ -192,6 +200,40 @@ class Keendevs_Multi_Location_WP_JOB_M {
         $result['additionalLocations'] = $additionalLocations;
 
         return $result;
+    }
+
+    /**
+     * @param  $content
+     * @return mixed
+     */
+    public function integrateSingleListingMap($content) {
+        $postID = get_the_ID();
+
+        if (get_post_type($postID) == 'job_listing') {
+
+            $additionalLocations = get_post_meta($postID, '_additionallocations', true);
+
+            $primaryLocationLating = get_post_meta($postID, 'geolocation_lat', true);
+            $primaryLocationLong = get_post_meta($postID, 'geolocation_long', true);
+            $primaryLocationAddress = get_post_meta($postID, 'geolocation_formatted_address', true);
+
+            array_push($additionalLocations, [
+                'address' => $primaryLocationAddress,
+                'lat'     => $primaryLocationLating,
+                'lng'     => $primaryLocationLong
+            ]);
+
+            // wp_console_log($additionalLocations);
+
+            wp_localize_script('single-listing', 'singleLocationsData', [
+                'additionalLocations' => $additionalLocations
+            ]);
+
+            $mapContainer = '<div id="ar-map" style="width: 100%; position: relative; height: 500px"></div>';
+
+            $content .= $mapContainer;
+        }
+        return $content;
     }
 
 }
