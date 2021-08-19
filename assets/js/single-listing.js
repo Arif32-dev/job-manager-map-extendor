@@ -1,5 +1,6 @@
 jQuery(document).ready(function ($) {
     let additionalLocations = singleLocationsData.additionalLocations;
+    let mapZoom = parseInt(singleLocationsData.mapZoom);
 
     let locations = [];
 
@@ -10,7 +11,7 @@ jQuery(document).ready(function ($) {
     if (!locations) return false;
 
     let map = new google.maps.Map(document.getElementById("ar-map"), {
-        zoom: 4,
+        zoom: mapZoom,
         center: new google.maps.LatLng(
             locations[locations.length - 1][1],
             locations[locations.length - 1][2]

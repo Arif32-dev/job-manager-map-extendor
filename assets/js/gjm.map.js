@@ -1,3 +1,4 @@
+// Overridding this js script from wp job manager geo location
 // global maps object
 var GJM_Maps = {};
 
@@ -973,6 +974,8 @@ jQuery(document).ready(function ($) {
         var map_id = gjmMapObject.args.map_id;
         var prefix = gjmMapObject.args.prefix;
 
+        // gjmMapObject.map_options.zoomLevel = parseInt(listifyLocationsData.mapZoom);
+
         console.log(gjmMapObject);
         // if not yet exists, generate a new map
         if (typeof GJM_Maps[map_id] == "undefined") {
@@ -1072,6 +1075,7 @@ jQuery(document).ready(function ($) {
      * @return {[type]}        [description]
      */
     jQuery(".job_listings, .resumes").on("updated_results", function (event, result) {
+        console.log(result.additionalLocations);
         if (result.additionalLocations) {
             result.additionalLocations.forEach((locationObject) => {
                 for (const key in locationObject) {
