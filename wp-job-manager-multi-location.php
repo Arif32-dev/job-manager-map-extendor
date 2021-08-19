@@ -258,7 +258,7 @@ class Keendevs_Multi_Location_WP_JOB_M {
 
             $content .= $additionalLocationHTML;
 
-            $mapContainer = '<div id="ar-map" style="width: 100%; position: relative; height: 500px"></div>';
+            $mapContainer = '<div id="ar-map" style="width: 100%; position: relative; height: 500px"></div><br>';
 
             $content .= $mapContainer;
 
