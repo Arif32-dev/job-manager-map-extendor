@@ -171,8 +171,6 @@ class Keendevs_Multi_Location_WP_JOB_M {
             true
         );
 
-        // display: flex;
-        // flex-direction: column-reverse;
     }
 
     /**
@@ -233,6 +231,10 @@ class Keendevs_Multi_Location_WP_JOB_M {
     public function integrateSingleListingMap($content) {
         $postID = get_the_ID();
 
+        $previousContent = $content;
+
+        $content = '';
+
         if (get_post_type($postID) == 'job_listing') {
 
             $additionalLocations = get_post_meta($postID, '_additionallocations', true);
@@ -251,7 +253,7 @@ class Keendevs_Multi_Location_WP_JOB_M {
 
             wp_localize_script('single-listing', 'singleLocationsData', [
                 'additionalLocations' => $additionalLocations,
-                'mapZoom'             => get_post_meta($postID, '_map_zoom', true)
+                'mapZoom'             => get_post_meta($postID, '_map_zoom', true) ? get_post_meta($postID, '_map_zoom', true) : 10
             ]);
 
             $content .= $additionalLocationHTML;
@@ -261,6 +263,8 @@ class Keendevs_Multi_Location_WP_JOB_M {
             $content .= $mapContainer;
 
         }
+
+        $content .= $previousContent;
 
         return $content;
     }
@@ -306,6 +310,9 @@ class Keendevs_Multi_Location_WP_JOB_M {
     public function metaBoxHTML($post) {
         wp_nonce_field('listify_map_zoom_action', 'listify_map_meta_nonce');
         $metaValue = get_post_meta($post->ID, '_map_zoom', true);
+
+        $metaValue = $metaValue ? $metaValue : 10;
+
         echo '
             <div>
                 <strong>

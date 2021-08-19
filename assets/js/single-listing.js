@@ -1,6 +1,6 @@
 jQuery(document).ready(function ($) {
     let additionalLocations = singleLocationsData.additionalLocations;
-    let mapZoom = parseInt(singleLocationsData.mapZoom);
+    let mapZoom = singleLocationsData?.mapZoom ? parseInt(singleLocationsData.mapZoom) : 10;
 
     let locations = [];
 
