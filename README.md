@@ -20,6 +20,20 @@ This plugin has the following dependencies:
 
 ## Screenshots of this plugin:
 
+Three or more...
+
+---
+
+Hyphens
+
+---
+
+Asterisks
+
+---
+
+Underscores
+
 <img align="left" alt="JavaScript" src="./screenshots/screenshot-1.png" title="Screenshot #1"/>
 ___
 
