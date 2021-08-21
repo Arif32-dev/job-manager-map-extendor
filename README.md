@@ -1,4 +1,4 @@
-# The _Multi Location for WP Job Manager_ plugin adds the ability to add as many markers as you want in _WP Job Manager_ plugin.
+# The _Multi Location for WP Job Manager_ plugin.
 
 <br/>
 
@@ -21,7 +21,9 @@ This plugin has the following dependencies:
 ## Screenshots of this plugin:
 
 <img align="left" alt="JavaScript" src="./screenshots/screenshot-1.png" title="Screenshot #1"/>
+
 <img align="left" alt="JavaScript" src="./screenshots/screenshot-2.png" title="Screenshot #2"/>
+
 <img align="left" alt="JavaScript" src="./screenshots/screenshot-3.png" title="Screenshot #3"/>
 
 <br/>
