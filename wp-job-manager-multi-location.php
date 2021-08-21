@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: Listify Multi Location for WP Job Manager
+ * Plugin Name: Multi Location for WP Job Manager
  * Plugin URI:  https://plugins.keendevs.com/listify-wp-job-manager-multi-location
  * Description: Enable adding multiple locations for a single listing for admin. This plugin also shows in the multiple locations on the frontend search and single listing page location map.
- * Author:      Azizul Haque
+ * Author:      Azizul Haque & AR Arif
  * Author URI:  https://keendevs.com
- * Version:     1.0
+ * Version:     2.0
  * Text Domain: multi-location
  * Domain Path: /languages
  * License: GPLv2 or later
@@ -231,25 +231,29 @@ class Keendevs_Multi_Location_WP_JOB_M {
     public function integrateSingleListingMap($content) {
         $postID = get_the_ID();
 
-        $previousContent = $content;
+        // $previousContent = $content;
 
-        $content = '';
+        // $content = '';
 
         if (get_post_type($postID) == 'job_listing') {
 
             $additionalLocations = get_post_meta($postID, '_additionallocations', true);
 
-            $primaryLocationLating = get_post_meta($postID, 'geolocation_lat', true);
-            $primaryLocationLong = get_post_meta($postID, 'geolocation_long', true);
-            $primaryLocationAddress = get_post_meta($postID, 'geolocation_formatted_address', true);
+            // $primaryLocationLating = get_post_meta($postID, 'geolocation_lat', true);
+            // $primaryLocationLong = get_post_meta($postID, 'geolocation_long', true);
+            // $primaryLocationAddress = get_post_meta($postID, 'geolocation_formatted_address', true);
+
+            if (!$additionalLocations) {
+                return $content;
+            }
 
             $additionalLocationHTML = $this->additionalLocationHTML($additionalLocations);
 
-            array_push($additionalLocations, [
-                'address' => $primaryLocationAddress,
-                'lat'     => $primaryLocationLating,
-                'lng'     => $primaryLocationLong
-            ]);
+            // array_push($additionalLocations, [
+            //     'address' => $primaryLocationAddress,
+            //     'lat'     => $primaryLocationLating,
+            //     'lng'     => $primaryLocationLong
+            // ]);
 
             wp_localize_script('single-listing', 'singleLocationsData', [
                 'additionalLocations' => $additionalLocations,
@@ -258,13 +262,13 @@ class Keendevs_Multi_Location_WP_JOB_M {
 
             $content .= $additionalLocationHTML;
 
-            $mapContainer = '<div id="ar-map" style="width: 100%; position: relative; height: 500px"></div><br>';
+            $mapContainer = '<div id="ar-map" style="width: 100%; position: relative; height: 500px; margin-bottom: 30px"></div>';
 
             $content .= $mapContainer;
 
         }
 
-        $content .= $previousContent;
+        // $content .= $previousContent;
 
         return $content;
     }
@@ -379,9 +383,27 @@ class Keendevs_Multi_Location_WP_JOB_M {
 function wp_job_manager_multi_location() {
 
     // deactivate the plugin if dependency plugins not active
-    $required = array('WP_Job_Manager', 'WP_Job_Manager_Extended_Location');
-    foreach ($required as $class) {
+    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    $required = array('WP_Job_Manager', 'WP_Job_Manager_Extended_Location', 'GJM_Init');
+
+    $requiredPlugins = [
+        'WP_Job_Manager'                   => 'WP Job Manager',
+        'WP_Job_Manager_Extended_Location' => 'WP Job Manager - Extended Location',
+        'GJM_Init'                         => 'WP Job Manager addon - Jobs Geolocation'
+    ];
+
+    foreach ($requiredPlugins as $class => $plugin) {
         if (!class_exists($class)) {
+            // add_action('admin_notices', function ($plugin) {
+            // });
+            printf('
+                <div class="notice notice-info">
+                    <h3>%s</h3>
+                    <p><strong>%s</strong></p>
+                </div>',
+                'Dependency plugin is required',
+                __('Please activate the <h4><i>' . $plugin . '</i></h4> plugin, As it is required to work properly for this plugin')
+            );
             // Deactivate the plugin.
             deactivate_plugins(plugin_basename(__FILE__));
             return;
@@ -392,4 +414,4 @@ function wp_job_manager_multi_location() {
 
 add_action('plugins_loaded', 'wp_job_manager_multi_location', 99);
 
-// [jobs gjm_use="2"]
+// [jobs gjm_use=2]
