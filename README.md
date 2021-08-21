@@ -21,8 +21,11 @@ This plugin has the following dependencies:
 ## Screenshots of this plugin:
 
 <details>
+<br/>
 <img align="left" alt="JavaScript" src="./screenshots/screenshot-1.png" title="Screenshot #1"/>
+<br/>
 <img align="left" alt="JavaScript" src="./screenshots/screenshot-2.png" title="Screenshot #2"/>
+<br/>
 <img align="left" alt="JavaScript" src="./screenshots/screenshot-3.png" title="Screenshot #3"/>
 </details>
 
